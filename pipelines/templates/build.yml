@@ -1,0 +1,26 @@
+parameters: {}
+
+stages:
+  - stage: Build
+    displayName: Build
+    jobs:
+      - job: BuildImage
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+          - script: |
+              cd app
+              npm ci
+              npm run test
+            displayName: 'Install & Test'
+          - task: Docker@2
+            displayName: 'Build image'
+            inputs:
+              command: build
+              Dockerfile: app/Dockerfile
+              tags: |
+                $(Build.BuildId)
+              repository: $(ACR_NAME)/demo-app

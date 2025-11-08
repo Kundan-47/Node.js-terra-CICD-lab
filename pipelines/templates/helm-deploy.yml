@@ -1,0 +1,13 @@
+parameters: {}
+
+stages:
+  - stage: Deploy
+    displayName: "Deploy (no AKS yet)"
+    jobs:
+      - job: DeployToPlaceholder
+        displayName: "Placeholder deploy"
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - script: echo "Skipping AKS deployment - no cluster configured yet"
+            displayName: "Skip Deployment"

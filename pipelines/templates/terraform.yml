@@ -1,0 +1,47 @@
+parameters:
+  - name: action
+    type: string
+    default: 'plan' # values: plan, apply, destroy
+  - name: workingDirectory
+    type: string
+    default: 'terraform'
+  - name: environment
+    type: string
+    default: 'terraform-apply'
+
+stages:
+  - stage: Terraform_${{ parameters.action }}
+    displayName: "Terraform ${{ parameters.action }}"
+    jobs:
+      - job: TerraformJob
+        displayName: "Terraform ${{ parameters.action }}"
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: 'Terraform Init & ${{ parameters.action }}'
+            inputs:
+              azureSubscription: 'azure-spn'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                cd ${{ parameters.workingDirectory }}
+                terraform init -input=false
+
+                if [ "${{ parameters.action }}" = "plan" ]; then
+                  terraform plan -out=tfplan -input=false
+                  terraform show -no-color tfplan > plan.txt
+                elif [ "${{ parameters.action }}" = "apply" ]; then
+                  terraform apply -auto-approve tfplan || terraform apply -auto-approve
+                elif [ "${{ parameters.action }}" = "destroy" ]; then
+                  terraform destroy -auto-approve
+                else
+                  echo "Invalid action parameter."
+                  exit 1
+                fi
+
+          - ${{ if eq(parameters.action, 'plan') }}:
+            - publish: ${{ parameters.workingDirectory }}/plan.txt
+              artifact: tfplan

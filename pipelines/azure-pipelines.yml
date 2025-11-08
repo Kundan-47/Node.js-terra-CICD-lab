@@ -1,0 +1,18 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  - name: ACR_NAME
+    value: $(acrName)
+
+stages:
+  - template: templates/terraform.yml
+    parameters:
+      action: 'plan'
+      environment: 'terraform-apply'
+
+  - template: templates/build.yml
+  - template: templates/push-acr.yml
+  - template: templates/helm-deploy.yml

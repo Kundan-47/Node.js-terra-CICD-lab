@@ -1,0 +1,24 @@
+parameters: {}
+
+stages:
+  - stage: PushToACR
+    displayName: Push image to ACR
+    dependsOn: Build
+    jobs:
+      - job: Push
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'azure-spn'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az acr login --name $(ACR_NAME)
+          - task: Docker@2
+            inputs:
+              command: push
+              repository: $(ACR_NAME)/demo-app
+              tags: |
+                $(Build.BuildId)
