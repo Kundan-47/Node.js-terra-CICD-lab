@@ -5,4 +5,3 @@ This repo provisions Azure infra with Terraform and demonstrates CI/CD with Azur
 Default region: East US
 
 Follow the docs in /docs to set up service connections and variable groups.
-123456789
