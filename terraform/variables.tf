@@ -15,3 +15,4 @@ variable "acr_id" {
 
 variable "aks_cluster_name" { default = "aks-demo" }
 variable "aks_node_count" { default = 2 }
+
